@@ -135,4 +135,7 @@ impl cmp::PartialEq<Matrix> for Matrix {
     fn eq(&self, other: &Matrix) -> bool {
         self.data == other.data
     }
+    fn ne(&self, other: &Matrix) -> bool {
+        self.data != other.data
+    }
 }

@@ -18,8 +18,10 @@ impl NeuralNetwork {
         weights.push(Matrix::random(input, hidden[0].1));
         for i in 0..hidden.len() - 1 {
             weights.push(Matrix::random(hidden[i].1, hidden[i + 1].1));
+            biases.push(Matrix::zeros(1, hidden[i + 1].1));
         }
         weights.push(Matrix::random(hidden[hidden.len() - 1].1, output));
+        biases.push(Matrix::zeros(1, output));
 
         layers.push(input);
         for i in 0..hidden.len() {
