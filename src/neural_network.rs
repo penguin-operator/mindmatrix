@@ -1,41 +1,52 @@
-use crate::activation::{Activation, LINEAR, SIGMOID, RELU, TANH};
+use crate::activator::Activator;
 use crate::matrix::Matrix;
 
 pub struct NeuralNetwork {
     pub layers: Vec<usize>,
+    pub activators: Vec<Activator>,
     pub weights: Vec<Matrix>,
     pub biases: Vec<Matrix>,
     pub data: Vec<Matrix>,
-    pub activators: Vec<Activation>,
 }
 impl NeuralNetwork {
-    pub fn new(input: usize, hidden: &[(Activation, usize)], output: usize) -> NeuralNetwork {
+    pub fn new(setup: &[(usize, Activator)]) -> NeuralNetwork {
         let mut layers = vec![];
         let mut weights = vec![];
         let mut biases = vec![];
         let mut activators = vec![];
 
-        weights.push(Matrix::random(input, hidden[0].1));
-        for i in 0..hidden.len() - 1 {
-            weights.push(Matrix::random(hidden[i].1, hidden[i + 1].1));
-            biases.push(Matrix::zeros(1, hidden[i + 1].1));
+        for i in 0..setup.len() - 1 {
+            weights.push(Matrix::random(setup[i].0, setup[i + 1].0));
+            biases.push(Matrix::random(1, setup[i + 1].0));
         }
-        weights.push(Matrix::random(hidden[hidden.len() - 1].1, output));
-        biases.push(Matrix::zeros(1, output));
 
-        layers.push(input);
-        for i in 0..hidden.len() {
-            activators.push(hidden[i].0);
-            layers.push(hidden[i].1);
+        for i in 0..setup.len() {
+            layers.push(setup[i].0);
+            activators.push(setup[i].1);
         }
-        layers.push(output);
 
         NeuralNetwork {
             layers,
+            activators,
             weights,
             biases,
             data: vec![],
-            activators,
         }
     }
+    pub fn think(&mut self, inputs: Vec<f64>) -> Vec<f64> {
+        self.data.clear();
+        self.data.push(Matrix::from(vec![inputs]));
+
+        for i in 0..self.layers.len() - 1 {
+            self.data.push(
+                self.data[i]
+                .dot(&self.weights[i])
+                .add(&self.biases[i])
+                .map(self.activators[i].function)
+            );
+        }
+
+        self.data[self.data.len() - 1].data[0].clone()
+    }
+    pub fn learn(&mut self, inputs: Vec<f64>, targets: Vec<f64>, rate: f64) {}
 }

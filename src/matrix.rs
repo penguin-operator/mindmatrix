@@ -73,12 +73,14 @@ impl Matrix {
         }
         result
     }
-    pub fn map(&mut self, function: fn(f64) -> f64) {
+    pub fn map(&self, function: fn(f64) -> f64) -> Matrix {
+        let mut result = Matrix::zeros(self.rows, self.cols);
         for i in 0..self.rows {
             for j in 0..self.cols {
-                self.data[i][j] = function(self.data[i][j]);
+                result.data[i][j] = function(self.data[i][j]);
             }
         }
+        result
     }
 
     pub fn add(&self, other: &Matrix) -> Matrix {
