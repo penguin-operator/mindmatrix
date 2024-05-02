@@ -1,3 +1,11 @@
+> [!WARNING]
+> Cargo will give you some errors because I use `rand` crate
+> Which causes problems with trait `Distribution<T>` since I
+> use generic typization for some users which might use `u8`
+> or `i16` within the neurons and weights so your advice would
+> be very helpful! Create an Issue where you would give me
+> your advice! Thank You Very Much!
+
 # MindMatrix AI
 This is a library for AI and other neural networks stuff. It can do:
 * machine learning and huge data processing capabilities

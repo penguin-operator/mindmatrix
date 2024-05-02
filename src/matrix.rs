@@ -1,21 +1,30 @@
-use std::cmp;
-use rand::{thread_rng, Rng};
+use std::{fmt, ops, cmp};
+use rand::{distributions::{Distribution, Standard}, thread_rng, Rng};
 
-pub struct Matrix {
+#[derive(Clone)]
+pub struct Matrix<T> {
     pub rows: usize,
     pub cols: usize,
-    pub data: Vec<Vec<f64>>,
+    pub data: Vec<Vec<T>>,
 }
 
-impl Matrix {
-    pub fn zeros(rows: usize, cols: usize) -> Matrix {
+impl<T: fmt::Display
+    + Copy + Default + Clone
+    + ops::Add<Output = T>
+    + ops::Mul<Output = T>
+    + ops::Div<Output = T>
+    + ops::Sub<Output = T>
+    + ops::AddAssign<T>
+    + cmp::PartialEq<T>
+    + Distribution<T>> Matrix<T> where Standard: Distribution<T> {
+    pub fn zeros(rows: usize, cols: usize) -> Matrix<T> {
         Matrix {
             rows: rows,
             cols: cols,
-            data: vec![vec![0.0; cols]; rows],
+            data: vec![vec![T::default(); cols]; rows],
         }
     }
-    pub fn from(data: Vec<Vec<f64>>) -> Matrix {
+    pub fn from(data: Vec<Vec<T>>) -> Matrix<T> {
         let rows = data.len();
         let cols = data[0].len();
         let mut vec = Vec::new();
@@ -33,13 +42,13 @@ impl Matrix {
             data: vec,
         }
     }
-    pub fn random(rows: usize, cols: usize) -> Matrix {
+    pub fn random(rows: usize, cols: usize) -> Matrix<T> {
         let mut rand = thread_rng();
         let mut data = vec![vec![]; rows];
     
         for i in 0..rows {
             for _ in 0..cols {
-                data[i].push(rand.gen::<f64>() * 2.0 - 1.0);
+                data[i].push(rand.gen::<T>());
             }
         }
     
@@ -50,12 +59,12 @@ impl Matrix {
         }
     }
 
-    pub fn dot(&self, other: &Matrix) -> Matrix {
+    pub fn dot(&self, other: &Matrix<T>) -> Matrix<T> {
         assert_eq!(self.cols, other.rows);
         let mut result = Matrix::zeros(self.rows, other.cols);
         for i in 0..self.rows {
             for j in 0..other.cols {
-                let mut sum = 0.0;
+                let mut sum = T::default();
                 for k in 0..self.cols {
                     sum += self.data[i][k] * other.data[k][j];
                 }
@@ -64,7 +73,7 @@ impl Matrix {
         }
         result
     }
-    pub fn transpose(&self) -> Matrix {
+    pub fn transpose(&self) -> Matrix<T> {
         let mut result = Matrix::zeros(self.cols, self.rows);
         for i in 0..self.rows {
             for j in 0..self.cols {
@@ -73,7 +82,7 @@ impl Matrix {
         }
         result
     }
-    pub fn map(&self, function: fn(f64) -> f64) -> Matrix {
+    pub fn map(&self, function: &dyn Fn(T) -> T) -> Matrix<T> {
         let mut result = Matrix::zeros(self.rows, self.cols);
         for i in 0..self.rows {
             for j in 0..self.cols {
@@ -83,7 +92,7 @@ impl Matrix {
         result
     }
 
-    pub fn add(&self, other: &Matrix) -> Matrix {
+    pub fn add(&self, other: &Matrix<T>) -> Matrix<T> {
         assert_eq!(self.rows, other.rows);
         assert_eq!(self.cols, other.cols);
 
@@ -95,7 +104,7 @@ impl Matrix {
         }
         result
     }
-    pub fn sub(&self, other: &Matrix) -> Matrix {
+    pub fn sub(&self, other: &Matrix<T>) -> Matrix<T> {
         assert_eq!(self.rows, other.rows);
         assert_eq!(self.cols, other.cols);
 
@@ -107,7 +116,7 @@ impl Matrix {
         }
         result
     }
-    pub fn mul(&self, other: &Matrix) -> Matrix {
+    pub fn mul(&self, other: &Matrix<T>) -> Matrix<T> {
         assert_eq!(self.rows, other.rows);
         assert_eq!(self.cols, other.cols);
 
@@ -119,7 +128,7 @@ impl Matrix {
         }
         result
     }
-    pub fn div(&self, other: &Matrix) -> Matrix {
+    pub fn div(&self, other: &Matrix<T>) -> Matrix<T> {
         assert_eq!(self.rows, other.rows);
         assert_eq!(self.cols, other.cols);
 
@@ -133,11 +142,31 @@ impl Matrix {
     }
 }
 
-impl cmp::PartialEq<Matrix> for Matrix {
-    fn eq(&self, other: &Matrix) -> bool {
+impl<T: PartialEq<T>> cmp::PartialEq<Matrix<T>> for Matrix<T> {
+    fn eq(&self, other: &Matrix<T>) -> bool {
         self.data == other.data
     }
-    fn ne(&self, other: &Matrix) -> bool {
+    fn ne(&self, other: &Matrix<T>) -> bool {
         self.data != other.data
     }
 }
+
+impl<T: fmt::Display> fmt::Display for Matrix<T> {
+    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+        for i in 0..self.rows {
+            write!(f, "{}[", if i == 0 { "[" } else { " " } )?;
+            for j in 0..self.cols {
+                write!(f, "{:5.2}", self.data[i][j])?;
+                if j < self.cols - 1 { write!(f, ", ")?; }
+            }
+            writeln!(f, "]{}", if i < self.rows - 1 { "," } else { "]" } )?;
+        }
+        Ok(())
+    }
+}
+
+// impl<T> Distribution<T> for rand::distributions::Standard {
+//     fn sample<R: Rng + ?Sized>(&self, rng: &mut R) -> T {
+//         T::default()
+//     }
+// }
