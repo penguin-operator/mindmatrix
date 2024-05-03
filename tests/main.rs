@@ -1,8 +1,4 @@
-use rand::distributions::Distribution;
-use mindmatrix::{
-    neural_network::NeuralNetwork,
-    layer::Layer
-};
+use mindmatrix::{neural_network::NeuralNetwork, layer::Layer};
 
 fn sigmoid(size: usize) -> Layer<f64> {
     Layer {
@@ -15,7 +11,7 @@ fn sigmoid(size: usize) -> Layer<f64> {
 fn linear(size: usize) -> Layer<f64> {
     Layer {
         function: |x| x,
-        derivative: |x| 1.0,
+        derivative: |_| 1.0,
         size
     }
 }
@@ -38,7 +34,7 @@ fn main() {
         vec![0.0],
     ];
 
-    xor_nn.train(x, y, 10000, 0.4);
+    xor_nn.train(x, y, 10000, 0.3);
 
     println!("{:?}", xor_nn.think(vec![0.0, 0.0]));
     println!("{:?}", xor_nn.think(vec![1.0, 0.0]));

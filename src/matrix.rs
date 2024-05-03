@@ -15,8 +15,7 @@ impl<T: fmt::Display
     + ops::Div<Output = T>
     + ops::Sub<Output = T>
     + ops::AddAssign<T>
-    + cmp::PartialEq<T>
-    + Distribution<T>> Matrix<T> where Standard: Distribution<T> {
+    + cmp::PartialEq<T>> Matrix<T> {
     pub fn zeros(rows: usize, cols: usize) -> Matrix<T> {
         Matrix {
             rows: rows,
@@ -42,7 +41,7 @@ impl<T: fmt::Display
             data: vec,
         }
     }
-    pub fn random(rows: usize, cols: usize) -> Matrix<T> {
+    pub fn random(rows: usize, cols: usize) -> Matrix<T> where Standard: Distribution<T> {
         let mut rand = thread_rng();
         let mut data = vec![vec![]; rows];
     
@@ -164,9 +163,3 @@ impl<T: fmt::Display> fmt::Display for Matrix<T> {
         Ok(())
     }
 }
-
-// impl<T> Distribution<T> for rand::distributions::Standard {
-//     fn sample<R: Rng + ?Sized>(&self, rng: &mut R) -> T {
-//         T::default()
-//     }
-// }

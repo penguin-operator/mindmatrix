@@ -10,6 +10,7 @@ pub struct NeuralNetwork<T> {
     pub biases: Vec<Matrix<T>>,
     pub data: Vec<Matrix<T>>,
 }
+
 impl<T: fmt::Display
     + Copy + Default + Clone
     + ops::Add<Output = T>
@@ -17,9 +18,8 @@ impl<T: fmt::Display
     + ops::Div<Output = T>
     + ops::Sub<Output = T>
     + ops::AddAssign<T>
-    + cmp::PartialEq<T>
-    + Distribution<T>> NeuralNetwork<T>  where Standard: Distribution<T> {
-    pub fn new(setup: Vec<Layer<T>>) -> NeuralNetwork<T> {
+    + cmp::PartialEq<T>> NeuralNetwork<T> {
+    pub fn new(setup: Vec<Layer<T>>) -> NeuralNetwork<T> where Standard: Distribution<T> {
         let mut layers = vec![];
         let mut weights = vec![];
         let mut biases = vec![];
