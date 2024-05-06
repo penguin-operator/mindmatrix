@@ -40,6 +40,24 @@ impl<T: fmt::Display
             data: vec![],
         }
     }
+    pub fn from(layers: Vec<Layer<T>>, weights: Vec<Vec<Vec<T>>>, biases: Vec<Vec<T>>) -> NeuralNetwork<T> {
+        let mut wm: Vec<Matrix<T>> = vec![];
+        let mut bm: Vec<Matrix<T>> = vec![];
+        let mut ll: Vec<Layer<T>> = vec![];
+
+        for ((l, w), b) in layers.iter().zip(weights.iter()).zip(biases.iter()) {
+            wm.push(Matrix::from(w.clone()));
+            bm.push(Matrix::from(vec![b.clone()]));
+        }
+
+        NeuralNetwork {
+            layers: ll,
+            weights: wm,
+            biases: bm,
+            data: vec![],
+        }
+    }
+
     pub fn think(&mut self, inputs: Vec<T>) -> Vec<T> {
         self.data.clear();
         self.data.push(Matrix::from(vec![inputs]).transpose());
@@ -47,7 +65,7 @@ impl<T: fmt::Display
         for i in 0..self.layers.len() - 1 {
             self.data.push(
                 self.weights[i]
-                .dot(&self.data[i])
+                .multiply(&self.data[i])
                 .add(&self.biases[i])
                 .map(&self.layers[i].function)
             );
@@ -61,10 +79,10 @@ impl<T: fmt::Display
         let mut gradients = parsed.map(&self.layers[self.layers.len() - 1].derivative);
 
         for i in (0..self.data.len() - 1).rev() {
-            gradients = gradients.mul(&errors).map(&|x| x * rate);
-            self.weights[i] = self.weights[i].add(&gradients.dot(&self.data[i].transpose()));
+            gradients = gradients.dot(&errors).map(&|x| x * rate);
+            self.weights[i] = self.weights[i].add(&gradients.multiply(&self.data[i].transpose()));
             self.biases[i] = self.biases[i].add(&gradients);
-            errors = self.weights[i].transpose().dot(&errors);
+            errors = self.weights[i].transpose().multiply(&errors);
             gradients = self.data[i].map(&self.layers[i].derivative);
         }
     }

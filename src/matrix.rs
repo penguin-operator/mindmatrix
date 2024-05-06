@@ -58,7 +58,7 @@ impl<T: fmt::Display
         }
     }
 
-    pub fn dot(&self, other: &Matrix<T>) -> Matrix<T> {
+    pub fn multiply(&self, other: &Matrix<T>) -> Matrix<T> {
         assert_eq!(self.cols, other.rows);
         let mut result = Matrix::zeros(self.rows, other.cols);
         for i in 0..self.rows {
@@ -115,7 +115,7 @@ impl<T: fmt::Display
         }
         result
     }
-    pub fn mul(&self, other: &Matrix<T>) -> Matrix<T> {
+    pub fn dot(&self, other: &Matrix<T>) -> Matrix<T> {
         assert_eq!(self.rows, other.rows);
         assert_eq!(self.cols, other.cols);
 
