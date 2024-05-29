@@ -48,6 +48,7 @@ impl<T: fmt::Display
         for ((l, w), b) in layers.iter().zip(weights.iter()).zip(biases.iter()) {
             wm.push(Matrix::from(w.clone()));
             bm.push(Matrix::from(vec![b.clone()]));
+            ll.push(l.clone());
         }
 
         NeuralNetwork {

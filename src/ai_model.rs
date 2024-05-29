@@ -3,7 +3,7 @@ use crate::matrix::Matrix;
 
 #[macro_export]
 macro_rules! aimodel {
-    ($f:expr) => {
+    ($t:ty, $f:expr) => {
         use std::{fs::File, io::Read};
 
         let file = File::open($f)?;
